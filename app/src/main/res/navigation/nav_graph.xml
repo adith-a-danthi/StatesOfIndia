@@ -3,29 +3,31 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/homeFragment">
+    app:startDestination="@+id/homeFragment">
+
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.example.statesofindia.ui.fragments.HomeFragment"
         android:label="fragment_home"
-        tools:layout="@layout/fragment_home" >
+        tools:layout="@layout/fragment_home">
         <action
-            android:id="@+id/action_homeFragment_to_listFragment3"
+            android:id="@+id/action_homeFragment_to_settingsFragment3"
+            app:destination="@id/settingsFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_listFragment6"
             app:destination="@id/listFragment" />
         <action
-            android:id="@+id/action_homeFragment_to_statsFragment"
+            android:id="@+id/action_homeFragment_to_statsFragment3"
             app:destination="@id/statsFragment" />
-        <action
-            android:id="@+id/action_homeFragment_to_settingsFragment"
-            app:destination="@id/settingsFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/settingsFragment"
         android:name="com.example.statesofindia.ui.fragments.SettingsFragment"
         android:label="fragment_settings"
         tools:layout="@layout/fragment_settings" >
         <action
-            android:id="@+id/action_settingsFragment_to_homeFragment"
+            android:id="@+id/action_settingsFragment_to_homeFragment2"
             app:destination="@id/homeFragment" />
     </fragment>
     <fragment
@@ -34,7 +36,7 @@
         android:label="fragment_stats"
         tools:layout="@layout/fragment_stats" >
         <action
-            android:id="@+id/action_statsFragment_to_homeFragment2"
+            android:id="@+id/action_statsFragment_to_homeFragment3"
             app:destination="@id/homeFragment" />
     </fragment>
     <fragment
@@ -43,7 +45,7 @@
         android:label="fragment_list"
         tools:layout="@layout/fragment_list" >
         <action
-            android:id="@+id/action_listFragment_to_homeFragment"
+            android:id="@+id/action_listFragment_to_homeFragment3"
             app:destination="@id/homeFragment" />
     </fragment>
 </navigation>
