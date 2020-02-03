@@ -31,6 +31,16 @@ dependencies {
     //Material Design
     implementation 'com.google.android.material:material:1.0.0'
 
+    //Paging Library
+    def paging_version = "2.1.1"
+    implementation "androidx.paging:paging-runtime:$paging_version"
+
+    //Room Components
+    def roomVersion = "2.2.3"
+    implementation "androidx.room:room-runtime:$roomVersion"
+    annotationProcessor "androidx.room:room-compiler:$roomVersion"
+    androidTestImplementation "androidx.room:room-testing:$roomVersion"
+
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
 
