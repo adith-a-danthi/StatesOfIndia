@@ -23,7 +23,7 @@ public interface StateDao {
     void deleteAll();
 
     @Delete
-    void deleteState();
+    void deleteState(State state);
 
     @Update
     void updateState(State state);
