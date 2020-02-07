@@ -29,4 +29,11 @@ public class State {
         return mCapital;
     }
 
+    public void setmStateName(String mStateName) {
+        this.mStateName = mStateName;
+    }
+
+    public void setmCapital(@NonNull String mCapital) {
+        this.mCapital = mCapital;
+    }
 }

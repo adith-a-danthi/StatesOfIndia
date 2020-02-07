@@ -25,7 +25,7 @@ public class StateRepository {
         return mStateDao.getAllPagedStates();
     }
 
-    public void insert (State state){
+    public void insertState (State state){
         new insertAsyncTask(mStateDao, state).execute();
     }
 
