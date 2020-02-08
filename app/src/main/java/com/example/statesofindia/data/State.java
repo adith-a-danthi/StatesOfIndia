@@ -36,4 +36,8 @@ public class State {
     public void setmCapital(@NonNull String mCapital) {
         this.mCapital = mCapital;
     }
+
+    public boolean equals(State s2){
+        return (mStateName == s2.getStateName() && mCapital == s2.getCapital());
+    }
 }
