@@ -1,6 +1,7 @@
 package com.example.statesofindia.ui.fragments;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -15,14 +16,15 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.statesofindia.R;
+import com.example.statesofindia.ui.NewStateActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class ListFragment extends Fragment {
-
 
     public ListFragment() {
         // Required empty public constructor
@@ -42,10 +44,22 @@ public class ListFragment extends Fragment {
 
         BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.bottomNav);
 
-        NavController navController =
+        FloatingActionButton fab = getActivity().findViewById(R.id.floatingActionButton);
+
+        final NavController navController =
                 Navigation.findNavController(requireActivity(),R.id.main_fragment);
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(),NewStateActivity.class);
+                startActivity(intent);
+            }
+        });
 
         NavigationUI.setupWithNavController(bottomNavigationView,navController);
     }
+
+
 
 }
