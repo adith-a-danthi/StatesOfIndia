@@ -7,15 +7,24 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
+import androidx.paging.PagedList;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.statesofindia.R;
+import com.example.statesofindia.StatePagingAdapter;
+import com.example.statesofindia.StateViewModel;
+import com.example.statesofindia.data.State;
 import com.example.statesofindia.ui.NewStateActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -30,6 +39,7 @@ public class ListFragment extends Fragment {
         // Required empty public constructor
     }
 
+    private StateViewModel mStateViewModel;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -58,6 +68,21 @@ public class ListFragment extends Fragment {
         });
 
         NavigationUI.setupWithNavController(bottomNavigationView,navController);
+
+        mStateViewModel =new ViewModelProvider(getActivity()).get(StateViewModel.class);
+
+        RecyclerView recyclerView = getActivity().findViewById(R.id.recyclerView);
+        final StatePagingAdapter mStatePagingAdapter = new StatePagingAdapter();
+        recyclerView.setAdapter(mStatePagingAdapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        mStateViewModel.getAllPagedStates().observe(getViewLifecycleOwner(), new Observer<PagedList<State>>() {
+            @Override
+            public void onChanged(PagedList<State> states) {
+                mStatePagingAdapter.submitList(states);
+            }
+        });
+
     }
 
 
