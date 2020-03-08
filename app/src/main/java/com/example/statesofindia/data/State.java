@@ -8,14 +8,23 @@ import androidx.room.PrimaryKey;
 @Entity(tableName = "state")
 public class State {
 
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
+    private Integer mStateId;
+
+    @NonNull
+    @ColumnInfo(name = "state")
     private String mStateName;
 
     @NonNull
     @ColumnInfo(name = "capital")
     private String mCapital;
 
-    public State(String stateName,@NonNull String capital){
+    public Integer getStateId() {
+        return mStateId;
+    }
+
+    public State(Integer stateId, String stateName, @NonNull String capital) {
+        this.mStateId = stateId;
         this.mStateName = stateName;
         this.mCapital = capital;
     }
@@ -29,15 +38,16 @@ public class State {
         return mCapital;
     }
 
-    public void setmStateName(String mStateName) {
+    public void setStateName(String mStateName) {
         this.mStateName = mStateName;
     }
 
-    public void setmCapital(@NonNull String mCapital) {
+    public void setCapital(@NonNull String mCapital) {
         this.mCapital = mCapital;
     }
 
-    public boolean equals(State s2){
+    public boolean equals(State s2) {
         return (mStateName == s2.getStateName() && mCapital == s2.getCapital());
     }
+
 }

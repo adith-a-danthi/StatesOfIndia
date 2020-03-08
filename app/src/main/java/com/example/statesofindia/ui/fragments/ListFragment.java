@@ -20,11 +20,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.statesofindia.R;
 import com.example.statesofindia.StatePagingAdapter;
 import com.example.statesofindia.StateViewModel;
 import com.example.statesofindia.data.State;
+import com.example.statesofindia.ui.MainActivity;
 import com.example.statesofindia.ui.NewStateActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -39,8 +41,6 @@ public class ListFragment extends Fragment {
         // Required empty public constructor
     }
 
-    private StateViewModel mStateViewModel;
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -54,22 +54,14 @@ public class ListFragment extends Fragment {
 
         BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.bottomNav);
 
-        FloatingActionButton fab = getActivity().findViewById(R.id.floatingActionButton);
 
         final NavController navController =
                 Navigation.findNavController(requireActivity(),R.id.main_fragment);
 
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getActivity(),NewStateActivity.class);
-                startActivity(intent);
-            }
-        });
 
         NavigationUI.setupWithNavController(bottomNavigationView,navController);
 
-        mStateViewModel =new ViewModelProvider(getActivity()).get(StateViewModel.class);
+        StateViewModel mStateViewModel = new ViewModelProvider(getActivity()).get(StateViewModel.class);
 
         RecyclerView recyclerView = getActivity().findViewById(R.id.recyclerView);
         final StatePagingAdapter mStatePagingAdapter = new StatePagingAdapter();
@@ -83,8 +75,16 @@ public class ListFragment extends Fragment {
             }
         });
 
+        FloatingActionButton fab = getActivity().findViewById(R.id.floatingActionButton);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getContext(), "Add new State", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getActivity(),NewStateActivity.class);
+                startActivity(intent);
+            }
+        });
+
     }
-
-
 
 }

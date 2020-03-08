@@ -9,10 +9,15 @@ import com.example.statesofindia.data.State;
 import com.example.statesofindia.database.StateDao;
 import com.example.statesofindia.database.StateRoomDatabase;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class StateRepository {
 
     private StateDao mStateDao;
     private DataSource.Factory<Integer,State> mAllStates;
+    ExecutorService executor = Executors.newSingleThreadExecutor();
 //    private LiveData<List<State>> mAllStates;
 
     public StateRepository(Application application){
@@ -25,38 +30,73 @@ public class StateRepository {
         return mStateDao.getAllPagedStates();
     }
 
-    public void insertState (State state){
-        new insertAsyncTask(mStateDao, state).execute();
+
+    public void insertState (final State state){
+// Alternate Method - easier in kotlin
+        executeInThread(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                insertState(state);
+                return null;
+            }
+        });
+
+//        new insertAsyncTask(mStateDao, state).execute();
     }
 
-    public void updateState(State state){
-        new updateAsyncTask(mStateDao).execute(state);
+    private void executeInThread(final Callable<Void> func){
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    func.call();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
-    public void deleteState(State state){
-        new deleteStateAsyncTask(mStateDao).execute(state);
+    public void updateState(final State state){
+// Easier in java
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mStateDao.updateState(state);
+            }
+        });
+//        new updateAsyncTask(mStateDao).execute(state);
+    }
+
+    public void deleteState(final State state){
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mStateDao.deleteState(state);
+            }
+        });
     }
 
     public void deleteAll(){
-        new deleteAllAsyncTask(mStateDao).execute();
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mStateDao.deleteAll();
+            }
+        });
     }
 
-    private class updateAsyncTask extends AsyncTask<State,Void,Void>{
-
-        private StateDao mAsyncTaskDao;
-
-        public updateAsyncTask(StateDao dao) {
-            this.mAsyncTaskDao = dao;
-        }
-
-        @Override
-        protected Void doInBackground(State... states) {
-            mAsyncTaskDao.updateState(states[0]);
-            return null;
-        }
+    public State getState(final int stateId){
+        return mStateDao.getState(stateId);
     }
 
-    private class insertAsyncTask extends AsyncTask<Void,Void,Void>{
+    public State getRandomState(){
+        return mStateDao.getRandomState();
+    }
+
+/*
+
+        private class insertAsyncTask extends AsyncTask<Void,Void,Void>{
 
         private StateDao mAsyncTaskDao;
         private State state;
@@ -72,36 +112,7 @@ public class StateRepository {
             return null;
         }
     }
-
-    private class deleteStateAsyncTask extends AsyncTask<State,Void,Void>{
-
-        private StateDao mAsyncTaskDao;
-
-        public deleteStateAsyncTask(StateDao mAsyncTaskDao) {
-            this.mAsyncTaskDao = mAsyncTaskDao;
-        }
-
-        @Override
-        protected Void doInBackground(State... states) {
-            mAsyncTaskDao.deleteState(states[0]);
-            return null;
-        }
-    }
-
-    private class deleteAllAsyncTask extends AsyncTask<Void,Void,Void>{
-
-        private StateDao mAsyncTaskDao;
-
-        public deleteAllAsyncTask(StateDao mAsyncTaskDao) {
-            this.mAsyncTaskDao = mAsyncTaskDao;
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            mAsyncTaskDao.deleteAll();
-            return null;
-        }
-    }
+*/
 
 }
 

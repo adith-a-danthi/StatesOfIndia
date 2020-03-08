@@ -16,8 +16,14 @@ public interface StateDao {
     @Insert
     void insert(State state);
 
-    @Query("SELECT * FROM state ORDER BY mStateName ASC")
+    @Query("SELECT * FROM state ORDER BY mStateId ASC")
     DataSource.Factory<Integer,State> getAllPagedStates();
+
+    @Query("SELECT * FROM state WHERE mStateId =:stateID")
+    State getState(Integer stateID);
+
+    @Query("SELECT * FROM state ORDER BY RANDOM() LIMIT  1")
+    State getRandomState();
 
     @Query("DELETE FROM state")
     void deleteAll();
