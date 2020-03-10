@@ -3,6 +3,7 @@ package com.example.statesofindia.data;
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 @Entity(tableName = "state")
@@ -23,7 +24,13 @@ public class State {
         return mStateId;
     }
 
-    public State(Integer stateId, String stateName, @NonNull String capital) {
+    public State(@NonNull String stateName, @NonNull String capital) {
+        this.mStateName = stateName;
+        this.mCapital = capital;
+    }
+
+    @Ignore
+    public State(Integer stateId, @NonNull String stateName, @NonNull String capital) {
         this.mStateId = stateId;
         this.mStateName = stateName;
         this.mCapital = capital;
@@ -44,6 +51,10 @@ public class State {
 
     public void setCapital(@NonNull String mCapital) {
         this.mCapital = mCapital;
+    }
+
+    public void setStateId(Integer mStateId) {
+        this.mStateId = mStateId;
     }
 
     public boolean equals(State s2) {

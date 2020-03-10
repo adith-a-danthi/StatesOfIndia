@@ -1,5 +1,6 @@
 package com.example.statesofindia.database;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -10,11 +11,13 @@ import com.example.statesofindia.data.State;
 import androidx.paging.DataSource;
 import androidx.room.Update;
 
+import java.util.List;
+
 @Dao
 public interface StateDao {
 
     @Insert
-    void insert(State state);
+    void insertState(State state);
 
     @Query("SELECT * FROM state ORDER BY mStateId ASC")
     DataSource.Factory<Integer,State> getAllPagedStates();
@@ -23,7 +26,10 @@ public interface StateDao {
     State getState(Integer stateID);
 
     @Query("SELECT * FROM state ORDER BY RANDOM() LIMIT  1")
-    State getRandomState();
+    LiveData<State> getRandomState();
+
+    @Query("SELECT * FROM state ORDER BY RANDOM() LIMIT  4")
+    List<State> getQuizStates();
 
     @Query("DELETE FROM state")
     void deleteAll();

@@ -1,29 +1,45 @@
 package com.example.statesofindia;
 
 import android.app.Application;
-import android.os.AsyncTask;
 
+import androidx.lifecycle.LiveData;
 import androidx.paging.DataSource;
 
 import com.example.statesofindia.data.State;
 import com.example.statesofindia.database.StateDao;
 import com.example.statesofindia.database.StateRoomDatabase;
 
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class StateRepository {
+
+    private static StateRepository REPOSITORY = null;
 
     private StateDao mStateDao;
     private DataSource.Factory<Integer,State> mAllStates;
     ExecutorService executor = Executors.newSingleThreadExecutor();
 //    private LiveData<List<State>> mAllStates;
 
-    public StateRepository(Application application){
+    private StateRepository(Application application){
         StateRoomDatabase db = StateRoomDatabase.getDatabase(application);
         mStateDao = db.stateDao();
         mAllStates = mStateDao.getAllPagedStates();
+    }
+
+    public static StateRepository getRepository(Application application)
+    {
+        if (REPOSITORY == null) {
+            synchronized (StateRepository.class){
+                if (REPOSITORY == null){
+                    REPOSITORY = new StateRepository(application);
+                }
+            }
+        }
+        return REPOSITORY;
     }
 
     public DataSource.Factory<Integer,State> getAllPagedStates(){
@@ -36,7 +52,7 @@ public class StateRepository {
         executeInThread(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                insertState(state);
+                mStateDao.insertState(state);
                 return null;
             }
         });
@@ -90,8 +106,18 @@ public class StateRepository {
         return mStateDao.getState(stateId);
     }
 
-    public State getRandomState(){
+    public LiveData<State> getRandomState(){
         return mStateDao.getRandomState();
+    }
+
+    public Future<List<State>> getQuizStates(){
+        Callable<List<State>> callable = new Callable<List<State>>() {
+            @Override
+            public List<State> call() {
+                return mStateDao.getQuizStates();
+            }
+        };
+        return executor.submit(callable);
     }
 
 /*

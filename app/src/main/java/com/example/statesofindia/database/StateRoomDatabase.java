@@ -29,7 +29,7 @@ public abstract class StateRoomDatabase extends RoomDatabase {
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    INSTANCE.stateDao().insert(new State(null, "Test", "Test"));
+                    INSTANCE.stateDao().insertState(new State(null, "Test", "Test"));
                 }
             });
         }

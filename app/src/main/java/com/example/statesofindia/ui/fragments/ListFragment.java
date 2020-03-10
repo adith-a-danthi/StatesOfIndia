@@ -31,6 +31,8 @@ import com.example.statesofindia.ui.NewStateActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import static android.app.Activity.RESULT_OK;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -81,10 +83,22 @@ public class ListFragment extends Fragment {
             public void onClick(View v) {
                 Toast.makeText(getContext(), "Add new State", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(getActivity(),NewStateActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent,1);
             }
         });
-
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+
+        if(requestCode == 1){
+            if (resultCode == RESULT_OK){
+                Toast.makeText(getActivity(), "State Saved", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getActivity(), "Result code not ok", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 }

@@ -20,7 +20,7 @@ public class StateViewModel extends AndroidViewModel {
 
     public StateViewModel(@NonNull Application application) {
         super(application);
-        mRepository = new StateRepository(application);
+        mRepository =  StateRepository.getRepository(application);
         mAllStates = mRepository.getAllPagedStates();
     }
 
@@ -47,6 +47,14 @@ public class StateViewModel extends AndroidViewModel {
 
     public void deleteState(State state){
         mRepository.deleteState(state);
+    }
+
+    public State getState(Integer stateId){
+        return mRepository.getState(stateId);
+    }
+
+    public LiveData<State> getRandomState(){
+        return mRepository.getRandomState();
     }
 
 }
