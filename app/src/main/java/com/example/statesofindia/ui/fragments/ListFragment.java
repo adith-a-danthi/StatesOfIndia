@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -14,10 +15,12 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 import androidx.paging.PagedList;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -30,6 +33,7 @@ import com.example.statesofindia.ui.MainActivity;
 import com.example.statesofindia.ui.NewStateActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -38,6 +42,8 @@ import static android.app.Activity.RESULT_OK;
  * A simple {@link Fragment} subclass.
  */
 public class ListFragment extends Fragment {
+
+    State currState;
 
     public ListFragment() {
         // Required empty public constructor
@@ -55,7 +61,7 @@ public class ListFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.bottomNav);
-
+        final CoordinatorLayout coordinatorLayout = getActivity().findViewById(R.id.coordinator_layout);
 
         final NavController navController =
                 Navigation.findNavController(requireActivity(),R.id.main_fragment);
@@ -63,7 +69,7 @@ public class ListFragment extends Fragment {
 
         NavigationUI.setupWithNavController(bottomNavigationView,navController);
 
-        StateViewModel mStateViewModel = new ViewModelProvider(getActivity()).get(StateViewModel.class);
+        final StateViewModel mStateViewModel = new ViewModelProvider(getActivity()).get(StateViewModel.class);
 
         RecyclerView recyclerView = getActivity().findViewById(R.id.recyclerView);
         final StatePagingAdapter mStatePagingAdapter = new StatePagingAdapter();
@@ -76,6 +82,43 @@ public class ListFragment extends Fragment {
                 mStatePagingAdapter.submitList(states);
             }
         });
+
+        final Snackbar snackbar = Snackbar.make(coordinatorLayout,"State is Deleted!",Snackbar.LENGTH_LONG)
+                .setAction("UNDO", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mStateViewModel.insertState(currState);
+                    }
+                });
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                int position = viewHolder.getAdapterPosition();
+                currState = mStatePagingAdapter.getStateAtPos(position);
+                mStateViewModel.deleteState(currState);
+                snackbar.show();
+            }
+        });
+
+        /*mStatePagingAdapter.setSwipeActionListener(new StatePagingAdapter.SwipeActionListener() {
+
+            @Override
+            public void swipedState(final State state, Integer direction) {
+                // if(direction == StatePagingAdapter.SWIPE_LEFT)
+                mStateViewModel.deleteState(state);
+
+            }
+
+        });*/
+
+        itemTouchHelper.attachToRecyclerView(recyclerView);
+
 
         FloatingActionButton fab = getActivity().findViewById(R.id.floatingActionButton);
         fab.setOnClickListener(new View.OnClickListener() {

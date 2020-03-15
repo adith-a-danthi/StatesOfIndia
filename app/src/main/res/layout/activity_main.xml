@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/coordinator_layout"
     tools:context=".ui.MainActivity">
 
    <fragment
@@ -20,7 +21,8 @@
        android:id="@+id/bottomNav"
        android:layout_width="match_parent"
        android:layout_height="wrap_content"
-       android:layout_gravity="bottom"
+       android:layout_gravity="top"
+       app:labelVisibilityMode="labeled"
        app:menu="@menu/bottom_menu"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
