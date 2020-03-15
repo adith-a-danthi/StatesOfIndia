@@ -10,7 +10,6 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
@@ -20,7 +19,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -29,7 +27,6 @@ import com.example.statesofindia.R;
 import com.example.statesofindia.StatePagingAdapter;
 import com.example.statesofindia.StateViewModel;
 import com.example.statesofindia.data.State;
-import com.example.statesofindia.ui.MainActivity;
 import com.example.statesofindia.ui.NewStateActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -43,7 +40,13 @@ import static android.app.Activity.RESULT_OK;
  */
 public class ListFragment extends Fragment {
 
-    State currState;
+    private State currState;
+    private static final int NEW_STATE_ACTIVITY_REQUEST_CODE = 1;
+    private static final int UPDATE_STATE_ACTIVITY_REQUEST_CODE = 2;
+
+    public static final String EXTRA_DATA_STATE_NAME = "extra_state_name_to_be_updated";
+    public static final String EXTRA_DATA_STATE_CAPITAL = "extra_state_capital_to_be_updated";
+    public static final String EXTRA_DATA_ID = "extra_data_id";
 
     public ListFragment() {
         // Required empty public constructor
@@ -90,6 +93,7 @@ public class ListFragment extends Fragment {
                         mStateViewModel.insertState(currState);
                     }
                 });
+        snackbar.setAnchorView(R.id.bottomNav);
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
@@ -104,21 +108,18 @@ public class ListFragment extends Fragment {
                 mStateViewModel.deleteState(currState);
                 snackbar.show();
             }
+
         });
-
-        /*mStatePagingAdapter.setSwipeActionListener(new StatePagingAdapter.SwipeActionListener() {
-
-            @Override
-            public void swipedState(final State state, Integer direction) {
-                // if(direction == StatePagingAdapter.SWIPE_LEFT)
-                mStateViewModel.deleteState(state);
-
-            }
-
-        });*/
 
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
+        mStatePagingAdapter.setItemOnClickListener(new StatePagingAdapter.ClickListener() {
+            @Override
+            public void onItemClick(View v, int position) {
+                State currState = mStatePagingAdapter.getStateAtPos(position);
+                launchUpdateStateActivity(currState);
+            }
+        });
 
         FloatingActionButton fab = getActivity().findViewById(R.id.floatingActionButton);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -126,9 +127,17 @@ public class ListFragment extends Fragment {
             public void onClick(View v) {
                 Toast.makeText(getContext(), "Add new State", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(getActivity(),NewStateActivity.class);
-                startActivityForResult(intent,1);
+                startActivityForResult(intent,NEW_STATE_ACTIVITY_REQUEST_CODE);
             }
         });
+    }
+
+    private void launchUpdateStateActivity(State state){
+        Intent intent = new Intent(getActivity(),NewStateActivity.class);
+        intent.putExtra(EXTRA_DATA_STATE_NAME, state.getStateName());
+        intent.putExtra(EXTRA_DATA_STATE_CAPITAL, state.getCapital());
+        intent.putExtra(EXTRA_DATA_ID, state.getStateId());
+        startActivityForResult(intent, UPDATE_STATE_ACTIVITY_REQUEST_CODE);
     }
 
     @Override
@@ -144,4 +153,6 @@ public class ListFragment extends Fragment {
 
         super.onActivityResult(requestCode, resultCode, data);
     }
+
+
 }

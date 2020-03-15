@@ -15,13 +15,14 @@
        android:layout_height="match_parent"
        app:defaultNavHost="true"
        android:layout_gravity="fill"
+       android:layout_marginBottom="?attr/actionBarSize"
        app:navGraph="@navigation/nav_graph"/>
 
    <com.google.android.material.bottomnavigation.BottomNavigationView
        android:id="@+id/bottomNav"
        android:layout_width="match_parent"
-       android:layout_height="wrap_content"
-       android:layout_gravity="top"
+       android:layout_height="?attr/actionBarSize"
+       android:layout_gravity="bottom"
        app:labelVisibilityMode="labeled"
        app:menu="@menu/bottom_menu"/>
 

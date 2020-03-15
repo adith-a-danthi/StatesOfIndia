@@ -2,13 +2,11 @@ package com.example.statesofindia;
 
 import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.paging.PagedListAdapter;
-import androidx.recyclerview.widget.AsyncDifferConfig;
 import androidx.recyclerview.widget.DiffUtil;
 
 import com.example.statesofindia.data.State;
@@ -18,6 +16,8 @@ public class StatePagingAdapter extends PagedListAdapter<State,StateViewHolder> 
 /*    private SwipeActionListener swipeActionListener = null;
     public static final Integer  SWIPE_LEFT = 121;
     public static final Integer SWIPE_RIGHT = 131;*/
+
+    public ClickListener clickListener;
 
     public StatePagingAdapter() {
         super(DIFF_CALLBACK);
@@ -42,37 +42,33 @@ public class StatePagingAdapter extends PagedListAdapter<State,StateViewHolder> 
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
-    public void onBindViewHolder(@NonNull StateViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull StateViewHolder holder, final int position) {
         final State currentState = getItem(position);
         if (currentState != null) {
             holder.bind(currentState);
 
-            /*if (swipeActionListener != null) {
-                holder.rootItem.setOnTouchListener(new SwipeDetector(holder.itemView.getContext()) {
-                    @SuppressLint("ClickableViewAccessibility")
-                    public void onSwipeLeft() {
-                        swipeActionListener.swipedState(currentState, SWIPE_LEFT);
-                    }
-                    public void onSwipeRight() {
-                        swipeActionListener.swipedState(currentState, SWIPE_RIGHT);
+            if (clickListener != null){
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        clickListener.onItemClick(v,position);
                     }
                 });
+            }
 
-                *//*holder.rootItem.setOnTouchListener(new View.OnTouchListener() {
-                    @Override
-                    public boolean onTouch(View v, MotionEvent event) {
-                        swipeActionListener.swipedState(currentState, SWIPE_LEFT);
-                        return true;
-                    }
-                });*//*
-
-            }*/
         }
     }
 
     public State getStateAtPos(int pos)
     {
         return getItem(pos);
+    }
+
+    public void setItemOnClickListener(ClickListener clickListener){
+        this.clickListener = clickListener;
+    }
+    public interface ClickListener{
+        void onItemClick(View v,int position);
     }
 
     private static DiffUtil.ItemCallback<State> DIFF_CALLBACK = new DiffUtil.ItemCallback<State>() {
