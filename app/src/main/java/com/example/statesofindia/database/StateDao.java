@@ -37,7 +37,7 @@ public interface StateDao {
     State getState(Integer stateID);
 
     @Query("SELECT * FROM state ORDER BY RANDOM() LIMIT  1")
-    LiveData<State> getRandomState();
+    State getRandomState();
 
     @Query("SELECT DISTINCT * FROM STATE ORDER BY RANDOM() LIMIT  4")
     List<State> getQuizStates();

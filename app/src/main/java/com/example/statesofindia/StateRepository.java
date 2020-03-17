@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import androidx.annotation.WorkerThread;
 import androidx.lifecycle.LiveData;
 import androidx.paging.DataSource;
 import androidx.paging.LivePagedListBuilder;
@@ -119,7 +120,8 @@ public class StateRepository {
         return mStateDao.getState(stateId);
     }
 
-    public LiveData<State> getRandomState(){
+    @WorkerThread
+    public State getRandomState(){
         return mStateDao.getRandomState();
     }
 

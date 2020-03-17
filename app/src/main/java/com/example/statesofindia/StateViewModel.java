@@ -59,8 +59,4 @@ public class StateViewModel extends AndroidViewModel {
         return mRepository.getState(stateId);
     }
 
-    public LiveData<State> getRandomState(){
-        return mRepository.getRandomState();
-    }
-
 }
