@@ -1,9 +1,16 @@
 package com.example.statesofindia;
 
 import android.app.Application;
+import android.content.Context;
+import android.content.SharedPreferences;
 
 import androidx.lifecycle.LiveData;
 import androidx.paging.DataSource;
+import androidx.paging.LivePagedListBuilder;
+import androidx.paging.PagedList;
+import androidx.preference.PreferenceManager;
+import androidx.sqlite.db.SimpleSQLiteQuery;
+import androidx.sqlite.db.SupportSQLiteQuery;
 
 import com.example.statesofindia.data.State;
 import com.example.statesofindia.database.StateDao;
@@ -20,14 +27,15 @@ public class StateRepository {
     private static StateRepository REPOSITORY = null;
 
     private StateDao mStateDao;
-    private DataSource.Factory<Integer,State> mAllStates;
     ExecutorService executor = Executors.newSingleThreadExecutor();
+    private SharedPreferences preferences;
+    private int PAGE_SIZE = 15;
 //    private LiveData<List<State>> mAllStates;
 
     private StateRepository(Application application){
         StateRoomDatabase db = StateRoomDatabase.getDatabase(application);
         mStateDao = db.stateDao();
-        mAllStates = mStateDao.getAllPagedStates();
+        preferences = PreferenceManager.getDefaultSharedPreferences(application);
     }
 
     public static StateRepository getRepository(Application application)
@@ -42,8 +50,13 @@ public class StateRepository {
         return REPOSITORY;
     }
 
-    public DataSource.Factory<Integer,State> getAllPagedStates(){
-        return mStateDao.getAllPagedStates();
+    public LiveData<PagedList<State>> getAllPagedStates(String sortBy){
+        LiveData<PagedList<State>> mPagedList =
+                new LivePagedListBuilder<>(
+                        mStateDao.getAllStates(constructQuery(sortBy)),
+                        PAGE_SIZE
+                ).build();
+        return mPagedList;
     }
 
 
@@ -139,6 +152,11 @@ public class StateRepository {
         }
     }
 */
+
+    private SupportSQLiteQuery constructQuery(String sortBy) {
+        String query = "SELECT * FROM state ORDER BY " + sortBy + " ASC";
+        return new SimpleSQLiteQuery(query);
+    }
 
 }
 

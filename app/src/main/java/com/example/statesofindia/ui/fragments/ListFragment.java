@@ -2,6 +2,7 @@ package com.example.statesofindia.ui.fragments;
 
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -18,6 +19,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,6 +50,9 @@ public class ListFragment extends Fragment {
     public static final String EXTRA_DATA_STATE_CAPITAL = "extra_state_capital_to_be_updated";
     public static final String EXTRA_DATA_ID = "extra_data_id";
 
+    private StateViewModel mStateViewModel;
+    private SharedPreferences sortByPreference;
+
     public ListFragment() {
         // Required empty public constructor
     }
@@ -63,30 +68,34 @@ public class ListFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.bottomNav);
-        final CoordinatorLayout coordinatorLayout = getActivity().findViewById(R.id.coordinator_layout);
+        BottomNavigationView bottomNavigationView = requireActivity().findViewById(R.id.bottomNav);
+        final CoordinatorLayout coordinatorLayout = requireActivity().findViewById(R.id.coordinator_layout);
 
         final NavController navController =
-                Navigation.findNavController(requireActivity(),R.id.main_fragment);
+                Navigation.findNavController(requireActivity(), R.id.main_fragment);
 
 
-        NavigationUI.setupWithNavController(bottomNavigationView,navController);
+        NavigationUI.setupWithNavController(bottomNavigationView, navController);
 
-        final StateViewModel mStateViewModel = new ViewModelProvider(getActivity()).get(StateViewModel.class);
+        mStateViewModel = new ViewModelProvider(requireActivity()).get(StateViewModel.class);
 
-        RecyclerView recyclerView = getActivity().findViewById(R.id.recyclerView);
+        sortByPreference = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String s = sortByPreference.getString("list_preference_1", "mStateId");
+        mStateViewModel.changeSortingOrder(s);
+
+        RecyclerView recyclerView = requireActivity().findViewById(R.id.recyclerView);
         final StatePagingAdapter mStatePagingAdapter = new StatePagingAdapter();
         recyclerView.setAdapter(mStatePagingAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        mStateViewModel.getAllPagedStates().observe(getViewLifecycleOwner(), new Observer<PagedList<State>>() {
+        mStateViewModel.mAllStates.observe(getViewLifecycleOwner(), new Observer<PagedList<State>>() {
             @Override
             public void onChanged(PagedList<State> states) {
                 mStatePagingAdapter.submitList(states);
             }
         });
 
-        final Snackbar snackbar = Snackbar.make(coordinatorLayout,"State is Deleted!",Snackbar.LENGTH_LONG)
+        final Snackbar snackbar = Snackbar.make(coordinatorLayout, "State is Deleted!", Snackbar.LENGTH_LONG)
                 .setAction("UNDO", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -95,7 +104,7 @@ public class ListFragment extends Fragment {
                 });
         snackbar.setAnchorView(R.id.bottomNav);
 
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
                 return false;
@@ -111,6 +120,9 @@ public class ListFragment extends Fragment {
 
         });
 
+
+        sortByPreference.registerOnSharedPreferenceChangeListener(listener);
+
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
         mStatePagingAdapter.setItemOnClickListener(new StatePagingAdapter.ClickListener() {
@@ -121,19 +133,19 @@ public class ListFragment extends Fragment {
             }
         });
 
-        FloatingActionButton fab = getActivity().findViewById(R.id.floatingActionButton);
+        FloatingActionButton fab = requireActivity().findViewById(R.id.floatingActionButton);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(getContext(), "Add new State", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(getActivity(),NewStateActivity.class);
-                startActivityForResult(intent,NEW_STATE_ACTIVITY_REQUEST_CODE);
+                Intent intent = new Intent(getActivity(), NewStateActivity.class);
+                startActivityForResult(intent, NEW_STATE_ACTIVITY_REQUEST_CODE);
             }
         });
     }
 
-    private void launchUpdateStateActivity(State state){
-        Intent intent = new Intent(getActivity(),NewStateActivity.class);
+    private void launchUpdateStateActivity(State state) {
+        Intent intent = new Intent(getActivity(), NewStateActivity.class);
         intent.putExtra(EXTRA_DATA_STATE_NAME, state.getStateName());
         intent.putExtra(EXTRA_DATA_STATE_CAPITAL, state.getCapital());
         intent.putExtra(EXTRA_DATA_ID, state.getStateId());
@@ -141,10 +153,16 @@ public class ListFragment extends Fragment {
     }
 
     @Override
+    public void onStop() {
+        sortByPreference.unregisterOnSharedPreferenceChangeListener(listener);
+        super.onStop();
+    }
+
+    @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 
-        if(requestCode == 1){
-            if (resultCode == RESULT_OK){
+        if (requestCode == 1) {
+            if (resultCode == RESULT_OK) {
                 Toast.makeText(getActivity(), "State Saved", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(getActivity(), "Result code not ok", Toast.LENGTH_SHORT).show();
@@ -154,5 +172,14 @@ public class ListFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    private SharedPreferences.OnSharedPreferenceChangeListener listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+            if (key.equals("list_preference_1")) {
+                String s = sharedPreferences.getString(key, "mStateId");
+                mStateViewModel.changeSortingOrder(s);
+            }
+        }
+    };
 
 }

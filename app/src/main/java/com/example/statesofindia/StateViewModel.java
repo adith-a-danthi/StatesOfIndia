@@ -3,11 +3,12 @@ package com.example.statesofindia;
 import android.app.Application;
 
 import androidx.annotation.NonNull;
+import androidx.arch.core.util.Function;
 import androidx.lifecycle.AndroidViewModel;
 
 import androidx.lifecycle.LiveData;
-import androidx.paging.DataSource;
-import androidx.paging.LivePagedListBuilder;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Transformations;
 import androidx.paging.PagedList;
 
 import com.example.statesofindia.data.State;
@@ -16,12 +17,26 @@ public class StateViewModel extends AndroidViewModel {
 
     private int PAGE_SIZE = 15;
     private StateRepository mRepository;
-    private DataSource.Factory<Integer, State> mAllStates;
+    public LiveData<PagedList<State>> mAllStates;
+
+    private MutableLiveData<String> sortOrderChanged = new MutableLiveData<>();
+
+
 
     public StateViewModel(@NonNull Application application) {
         super(application);
         mRepository =  StateRepository.getRepository(application);
-        mAllStates = mRepository.getAllPagedStates();
+        sortOrderChanged.setValue("mStateId");
+        mAllStates = Transformations.switchMap(sortOrderChanged, new Function<String, LiveData<PagedList<State>>>() {
+            @Override
+            public LiveData<PagedList<State>> apply(String input) {
+                return mRepository.getAllPagedStates(input);
+            }
+        });
+    }
+
+    public void changeSortingOrder(String sortBy) {
+        sortOrderChanged.postValue(sortBy);
     }
 
     public void insertState(State state){
@@ -34,15 +49,6 @@ public class StateViewModel extends AndroidViewModel {
 
     public void updateState(State state){
         mRepository.updateState(state);
-    }
-
-    public LiveData<PagedList<State>> getAllPagedStates(){
-        LiveData<PagedList<State>> mPagedList =
-                new LivePagedListBuilder<>(
-                        mAllStates,
-                        PAGE_SIZE
-                ).build();
-        return mPagedList;
     }
 
     public void deleteState(State state){

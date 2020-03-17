@@ -1,6 +1,8 @@
 package com.example.statesofindia.ui.fragments;
 
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -12,6 +14,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +38,10 @@ public class HomeFragment extends Fragment {
 
     private HomeViewModel homeViewModel;
     private QuizView quizView;
+    private SharedPreferences quizScore;
+
+    private  static final String TOTAL_GAME_KEY = "total_games";
+    private static final String WON_GAME_KEY = "wins";
 
     public HomeFragment() {
         // Required empty public constructor
@@ -62,6 +69,8 @@ public class HomeFragment extends Fragment {
 
         NavigationUI.setupWithNavController(bottomNavigationView,navController);
 
+        quizScore = requireActivity().getSharedPreferences("stats", Context.MODE_PRIVATE);
+
         homeViewModel.quizData.observe(getActivity(), new Observer<List<State>>() {
             @Override
             public void onChanged(List<State> states) {
@@ -84,13 +93,25 @@ public class HomeFragment extends Fragment {
     }
 
     private void updateResult(Boolean result){
+        int currentTotal = quizScore.getInt(TOTAL_GAME_KEY,  0);
+        int wins = quizScore.getInt(WON_GAME_KEY, 0);
+
+        SharedPreferences.Editor editor = quizScore.edit();
+
         if (result){
+            wins++;
             Toast.makeText(getActivity(), "Correct Answer", Toast.LENGTH_SHORT).show();
+            editor.putInt(WON_GAME_KEY, wins);
         } else {
             Toast.makeText(getActivity(), "Wrong Answer", Toast.LENGTH_SHORT).show();
         }
         homeViewModel.refreshGame();
         quizView.reset();
+
+        currentTotal++;
+
+        editor.putInt(TOTAL_GAME_KEY, currentTotal);
+        editor.apply();
     }
 
 }
