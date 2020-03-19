@@ -44,6 +44,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.settings, rootKey);
 
+        //Set time for periodic notification
         long current = System.currentTimeMillis();
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, 16);
@@ -53,7 +54,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             calendar.add(Calendar.DAY_OF_MONTH, 1);
         }
 
-
+        //Work Manager to perform work periodically
         final WorkManager manager = WorkManager.getInstance(requireActivity());
         final PeriodicWorkRequest.Builder workRequestBuilder = new PeriodicWorkRequest.Builder(
                 NotificationWorker.class,
@@ -63,6 +64,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         workRequestBuilder.setInitialDelay(calendar.getTimeInMillis() - current, TimeUnit.MILLISECONDS);
         //workRequestBuilder.setInputData()
 
+        //Notification Preference ON/OFF
         SwitchPreference s = findPreference("switch_preference_1");
         s.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
@@ -77,6 +79,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             }
         });
 
+        //Dark Mode Preference
         ListPreference darkMode = findPreference(getString(R.string.pref_key_night));
         darkMode.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
@@ -92,18 +95,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     }
 
+    //To update theme and restart activity
     private void updateTheme(int mode) {
         AppCompatDelegate.setDefaultNightMode(mode);
         requireActivity().recreate();
     }
-
-
-/*    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-       // return inflater.inflate(R.layout.fragment_settings, container, false);
-    }*/
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {

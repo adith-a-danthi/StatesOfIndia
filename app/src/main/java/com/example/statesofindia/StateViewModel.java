@@ -36,6 +36,14 @@ public class StateViewModel extends AndroidViewModel {
     }
 
     public void changeSortingOrder(String sortBy) {
+        switch (sortBy){
+            case "State Name": sortBy = "state";
+                break;
+            case "State Capital" : sortBy = "capital";
+                break;
+            case "State ID": sortBy = "mStateId";
+                break;
+        }
         sortOrderChanged.postValue(sortBy);
     }
 

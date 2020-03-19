@@ -2,8 +2,6 @@ package com.example.statesofindia.database;
 
 import android.content.Context;
 import android.content.res.AssetManager;
-import android.net.Uri;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.room.Database;
@@ -29,27 +27,7 @@ public abstract class StateRoomDatabase extends RoomDatabase {
     public abstract StateDao stateDao();
 
     private static StateRoomDatabase INSTANCE;
-    static ExecutorService executor = Executors.newSingleThreadExecutor();
-
-    private static Callback callback =  new Callback() {
-        @Override
-        public void onOpen(@NonNull SupportSQLiteDatabase db) {
-            super.onOpen(db);
-            test();
-        }
-
-        @Override
-        public void onCreate(@NonNull SupportSQLiteDatabase db) {
-            super.onCreate(db);
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    INSTANCE.stateDao().insertState(new State(null, "Test", "Test"));
-                }
-            });
-
-        }
-    };
+    private static ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public static StateRoomDatabase getDatabase(final Context context) {
         if (INSTANCE == null) {
@@ -63,7 +41,12 @@ public abstract class StateRoomDatabase extends RoomDatabase {
                         @Override
                         public void onCreate(@NonNull SupportSQLiteDatabase db) {
                             super.onCreate(db);
-                            prePopulateDb(context.getAssets());
+                            executor.execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    prePopulateDb(context.getAssets(), INSTANCE.stateDao());
+                                }
+                            });
                         }
                     }).fallbackToDestructiveMigration().build();
                 }
@@ -72,7 +55,8 @@ public abstract class StateRoomDatabase extends RoomDatabase {
         return INSTANCE;
     }
 
-    private static void prePopulateDb(AssetManager assetManager){
+    //Read the states data in JSON file and prepopulate the RoomDB
+    private static void prePopulateDb(AssetManager assetManager, StateDao stateDao){
         BufferedReader reader = null;
         StringBuilder stringBuilder = new StringBuilder();
         String json = "";
@@ -101,23 +85,21 @@ public abstract class StateRoomDatabase extends RoomDatabase {
         try{
             JSONObject states = new JSONObject(json);
             JSONObject section = states.getJSONObject("sections");
-            JSONArray statesAL = section.getJSONArray("States (A-L)");
-            for (int i=0 ;i<statesAL.length(); i++) {
-                JSONObject stateData = statesAL.getJSONObject(i);
+            populateFromJSON(section.getJSONArray("States (A-L)"), stateDao);
+            populateFromJSON(section.getJSONArray("States (M-Z)"), stateDao);
+            populateFromJSON(section.getJSONArray("Union Territories"), stateDao);
+        } catch (JSONException ignored){}
+    }
+
+    private static void populateFromJSON(JSONArray states, StateDao stateDao){
+        try{
+            for (int i=0 ;i<states.length(); i++) {
+                JSONObject stateData = states.getJSONObject(i);
                 String stateName = stateData.getString("key");
                 String stateCapital = stateData.getString("val");
-                INSTANCE.stateDao().insertState(new State(0,stateName,stateCapital));
+                stateDao.insertState(new State(null,stateName,stateCapital));
             }
-        } catch (JSONException je){
-
-        }
-
+        }catch (JSONException ignored){}
     }
 
-    private static void test() {
-        String location = "asset:///state-capital.json";
-        Uri uri = Uri.parse(location);
-        Log.d("test", "Uri: " + uri.getPath());
-        //File file = new File(uri.getPath());
-    }
 }

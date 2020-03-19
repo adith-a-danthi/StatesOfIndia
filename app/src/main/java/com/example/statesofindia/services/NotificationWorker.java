@@ -20,6 +20,7 @@ public class NotificationWorker extends Worker {
         stateRepository = StateRepository.getRepository((Application) context.getApplicationContext());
     }
 
+    //Task to be performed periodically is mentioned here
     @NonNull
     @Override
     public Result doWork() {

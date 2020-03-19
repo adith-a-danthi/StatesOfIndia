@@ -68,15 +68,15 @@ public class QuizView extends LinearLayout {
         radios[correctOption].setId(View.generateViewId());
         radios[correctOption].setText(correctState.getCapital());
         correctOptionId = radios[correctOption].getId();
-        int j = 0;
-        for (int i = 0; i<4;i++){
+
+        for (int i = 0, j = 0; i<4; i++, j++){
             if (i == correctOption) {
                 optionsRadio.addView(radios[correctOption]);
                 continue;
             }
             radios[i] = new RadioButton(getContext());
             radios[i].setId(View.generateViewId());
-            radios[i].setText(states.get(j++).getCapital());
+            radios[i].setText(states.get(j).getCapital());
             optionsRadio.addView(radios[i]);
         }
         initListener();
