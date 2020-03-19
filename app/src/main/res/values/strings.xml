@@ -23,4 +23,9 @@
     <string name="night_mode_auto">Automatic</string>
     <string name="night_mode_on">Night mode</string>
     <string name="night_mode_off">Day mode</string>
+
+    <string name="stats_total_games">Games</string>
+    <string name="stats_total_wins">Wins</string>
+    <string name="reset_btn">Reset Stats</string>
+
 </resources>
