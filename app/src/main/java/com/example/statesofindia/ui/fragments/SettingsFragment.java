@@ -44,35 +44,38 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.settings, rootKey);
 
-        //Set time for periodic notification
-        long current = System.currentTimeMillis();
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 16);
-        calendar.set(Calendar.MINUTE, 30);
-
-        if(calendar.getTimeInMillis() < current) {
-            calendar.add(Calendar.DAY_OF_MONTH, 1);
-        }
-
-        //Work Manager to perform work periodically
-        final WorkManager manager = WorkManager.getInstance(requireActivity());
-        final PeriodicWorkRequest.Builder workRequestBuilder = new PeriodicWorkRequest.Builder(
-                NotificationWorker.class,
-                1,
-                TimeUnit.DAYS
-                );
-        workRequestBuilder.setInitialDelay(calendar.getTimeInMillis() - current, TimeUnit.MILLISECONDS);
-        //workRequestBuilder.setInputData()
-
         //Notification Preference ON/OFF
         SwitchPreference s = findPreference("switch_preference_1");
         s.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
+
+                //Get time when notifications where switched on
+                long current = System.currentTimeMillis();
+                //Set time for periodic notification
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(Calendar.HOUR_OF_DAY, 16);
+                calendar.set(Calendar.MINUTE, 30);
+
+                if(calendar.getTimeInMillis() < current) {
+                    calendar.add(Calendar.DAY_OF_MONTH, 1);
+                }
+
+                //Work Manager to perform work periodically
+                final WorkManager manager = WorkManager.getInstance(requireActivity());
+                final PeriodicWorkRequest.Builder workRequestBuilder = new PeriodicWorkRequest.Builder(
+                        NotificationWorker.class,
+                        1,
+                        TimeUnit.DAYS
+                );
+                workRequestBuilder.setInitialDelay(calendar.getTimeInMillis() - current, TimeUnit.MILLISECONDS);
+
                 Boolean x = (Boolean) newValue;
                 if (x) {
+                    //Enqueue the work
                     manager.enqueueUniquePeriodicWork(NOTIFICATION_WORK, ExistingPeriodicWorkPolicy.REPLACE, workRequestBuilder.build());
                 } else {
+                    //Remove the work
                     manager.cancelUniqueWork(NOTIFICATION_WORK);
                 }
                 return true;

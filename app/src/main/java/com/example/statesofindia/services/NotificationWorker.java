@@ -2,6 +2,7 @@ package com.example.statesofindia.services;
 
 import android.app.Application;
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.work.Worker;
@@ -26,6 +27,7 @@ public class NotificationWorker extends Worker {
     public Result doWork() {
         State state = stateRepository.getRandomState();
         Notifications.getDailyNotification(getApplicationContext(), state);
+        Log.d("notification","Worker Started");
         return Result.success();
     }
 }

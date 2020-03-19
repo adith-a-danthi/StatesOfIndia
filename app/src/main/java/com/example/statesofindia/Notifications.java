@@ -18,11 +18,10 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 public class Notifications {
 
     private static final String PRIMARY_CHANNEL_ID = "primary_notification_channel";
-    private static NotificationManager mNotifyManager;
     private static final int NOTIFICATION_ID = 0;
 
     public static void getDailyNotification(Context context, State state){
-        mNotifyManager = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
+        NotificationManager mNotifyManager = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
 
         //Creating notification channel
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
@@ -45,6 +44,7 @@ public class Notifications {
                 .setContentTitle(notificationTitle)
                 .setContentText(notificationContent)
                 .setContentIntent(notificationPendingIntent)
+                .setSmallIcon(R.drawable.ic_notification)
                 .setAutoCancel(true);
 
         mNotifyManager.notify(NOTIFICATION_ID, notifyBuilder.build());
